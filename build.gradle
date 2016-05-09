@@ -4,15 +4,17 @@ buildscript {
 	}
 	repositories {
 		mavenCentral()
+		maven { url "https://plugins.gradle.org/m2/" }
 	}
 	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath "com.moowork.gradle:gradle-node-plugin:0.12"
 	}
 }
 
 apply plugin: 'groovy'
-apply plugin: 'eclipse'
-apply plugin: 'spring-boot' 
+apply plugin: 'spring-boot'
+apply plugin: 'com.moowork.node'
 
 jar {
 	baseName = 'app'
@@ -43,26 +45,47 @@ dependencyManagement {
 	}
 }
 
-
-eclipse {
-	classpath {
-		 containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
-		 containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
-	}
-}
-
 sourceSets {
     main {
         groovy {
-            srcDir 'srv/main/groovy'
+            srcDirs = ['srv/main/groovy']
         }
         resources {
-            srcDir 'srv/main/resources'
+            srcDirs = ['srv/main/resources']
         }
     }
     test {
         groovy {
-            srcDir 'srv/test/groovy'
+            srcDirs = ['srv/test/groovy']
         }
     }
 }
+
+ext.springProfilesActive = 'default'
+
+task dev << {
+	println 'Running DEVELOPMENT assets'
+}
+dev.dependsOn 'npm_run_build'
+dev.finalizedBy bootRun
+
+task prod << {
+	println 'Running PRODUCTION assets'
+}
+prod.dependsOn 'npm_run_build_prod'
+prod.finalizedBy bootRun
+
+if (gradle.startParameter.taskNames.contains("dev")) {
+	project.ext.set('springProfilesActive','development')
+} else if (gradle.startParameter.taskNames.contains("prod")) {
+	project.ext.set('springProfilesActive','production')
+} else {
+	project.ext.set('springProfilesActive','default')
+}
+
+bootRun {
+	addResources = true
+	environment 'spring.profiles.active', project.springProfilesActive
+}
+
+jar.dependsOn 'npm_run_build_prod'

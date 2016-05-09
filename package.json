@@ -5,6 +5,9 @@
   "author": "Patrick Stapleton <patrick@angularclass.com>",
   "homepage": "https://github.com/angularclass/angular2-webpack-starter",
   "license": "MIT",
+  "config": {
+    "distDir": "srv/main/resources/static"
+  },
   "scripts": {
      "rimraf": "rimraf",
      "tslint": "tslint",
@@ -15,8 +18,8 @@
      "webdriver-manager": "webdriver-manager",
      "protractor": "protractor",
 
-     "clean": "npm cache clean && npm run rimraf -- node_modules doc typings coverage dist",
-       "clean:dist": "npm run rimraf -- dist",
+     "clean": "npm cache clean && npm run rimraf -- node_modules doc typings coverage $npm_package_config_distDir",
+       "clean:dist": "npm run rimraf -- $npm_package_config_distDir",
          "preclean:install": "npm run clean",
        "clean:install": "npm set progress=false && npm install",
          "preclean:start": "npm run clean",
@@ -29,6 +32,7 @@
        "watch:prod": "npm run build:prod -- --watch",
 
      "build": "npm run build:dev",
+     "build_prod": "npm run build:prod",
          "prebuild:dev": "npm run clean:dist",
        "build:dev": "webpack --config config/webpack.dev.js --progress --profile --colors --display-error-details --display-cached",
          "prebuild:prod": "npm run clean:dist",
@@ -37,7 +41,7 @@
      "server": "npm run server:dev",
        "server:dev": "webpack-dev-server --config config/webpack.dev.js --inline --progress --profile --colors --watch --display-error-details --display-cached --content-base src/",
        "server:dev:hmr": "npm run server:dev -- --hot",
-       "server:prod": "http-server dist --cors",
+       "server:prod": "http-server $npm_package_config_distDir --cors",
 
      "webdriver:update": "npm run webdriver-manager update",
      "webdriver:start": "npm run webdriver-manager start",

@@ -61,3 +61,6 @@ npm-debug.log
 .gradle
 build
 *.swp
+
+# Spring Boot #
+srv/main/resources/static
